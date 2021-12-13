@@ -17,7 +17,7 @@ def load_data(expand=False,plot=False):  # load mfeat-pix.txt as opencv' format
                 row.append(int(data[im][i*15+j]))
             img.append(row)
         if expand: # expand the img from 16*15 to 32*32
-            img = cv2.copyMakeBorder(np.array(img,dtype=np.uint8), 8, 8, 8, 9, cv2.BORDER_CONSTANT, value=0) # 添加边框
+            img = cv2.copyMakeBorder(np.array(img,dtype=np.uint8), 8, 8, 8, 9, cv2.BORDER_CONSTANT, value=0)
         img_array.append(img)  
     img_array=(np.array(img_array,dtype=np.uint8)/6)*255
     
@@ -42,13 +42,9 @@ def split_train_test(img_array,labels):# the first 100 is for training, the last
     test_img_array=img_array[100:200]
     test_labels=labels[100:200]
     for i in range(200,2000,200):
-        print(i)
+        #print(i)
         train_img_array=np.concatenate((train_img_array,img_array[i:i+100]),axis=0)
         train_labels=np.concatenate((train_labels,labels[i:i+100]),axis=0)
         test_img_array=np.concatenate((test_img_array,img_array[i+100:i+200]),axis=0)
         test_labels=np.concatenate((test_labels,labels[i+100:i+200]),axis=0)
     return train_img_array,train_labels,test_img_array,test_labels
-
-if __name__ == "__main__":
-    img_array,labels=load_data(expand=True)
-    train_img_array,train_labels,test_img_array,test_labels=split_train_test(img_array,labels)
