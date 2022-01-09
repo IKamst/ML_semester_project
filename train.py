@@ -11,6 +11,12 @@ from tensorflow.keras.utils import to_categorical
 from load_data import *
 import numpy as np
 
+AUG_ROTATION_RANGE = 60
+AUG_ZOOM_RANGE = 0.8
+AUG_SHEAR_RANGE = 20
+
+AUG_CHANCE = 1
+
 def solve_cudnn_error():
     gpus = config.experimental.list_physical_devices('GPU')
     if gpus:
@@ -36,7 +42,7 @@ def model_build():
     model.add(layers.Dense(10,activation = 'softmax')) 
     
     return model
-def data_generator(dataset,st,ed,batch_size,aug = None): 
+def data_generator(dataset,st,ed,batch_size, aug):
     nowinx = st
     while True:
         im_array = []
@@ -63,7 +69,10 @@ def data_generator(dataset,st,ed,batch_size,aug = None):
             nowinx = st if nowinx==ed else nowinx+1 
             
         lb_array = to_categorical(np.array(lb_array),10)
-        if (aug is not None) and (random.random() >0.5) :
+
+        # augment the data
+
+        if (aug is not None) and (random.random() <= AUG_CHANCE):
             im_array_old = im_array.copy()
             new_array = im_array
             new_array = next(aug.flow(x=new_array,y=None,batch_size = batch_size, shuffle=False, 
@@ -76,7 +85,7 @@ def data_generator(dataset,st,ed,batch_size,aug = None):
                 while(1):
                     cv2.imshow('dst',im_array[i])
                     cv2.imshow('im_array_old',im_array_old[i])
-                    
+
                     if cv2.waitKey(1) == ord('0'):
                         break
                 cv2.destroyAllWindows() '''
@@ -92,9 +101,9 @@ if __name__ == "__main__":
     test_set=list(zip(test_img_array, test_labels))
 
     solve_cudnn_error()
-    aug = ImageDataGenerator(rotation_range = 60,zoom_range = 0,width_shift_range = 0,
-                             height_shift_range = 0,shear_range = 0,horizontal_flip =True,vertical_flip =False,
-                             fill_mode = "constant",cval=0)
+    aug = ImageDataGenerator(rotation_range = AUG_ROTATION_RANGE, zoom_range = AUG_ZOOM_RANGE, width_shift_range = 0,
+                             height_shift_range = 0, shear_range = AUG_SHEAR_RANGE, horizontal_flip =False, vertical_flip =False,
+                             fill_mode = "constant", cval=0)
 
     train_gen = data_generator(train_set,0,len(train_set)-1,30,aug)
     validate_gen = data_generator(test_set,0,len(test_set)-1,20,None) 
