@@ -36,15 +36,23 @@ def load_data(expand=False,plot=False):  # load mfeat-pix.txt as opencv' format
             cv2.destroyAllWindows()
     return img_array,np.array(labels)
 
-def split_train_test(img_array,labels):# the first 100 is for training, the last 100 is for testing
-    train_img_array=img_array[0:100]
-    train_labels=labels[0:100]
+
+# Split the data into training, validation en testing set.
+# The first 50 images of each digit are for training, the next 50 for testing
+# and then 100 for testing.
+# TODO randomise this? and how many for each set?
+def split_train_validate_test(img_array,labels):
+    train_img_array=img_array[0:50]
+    train_labels=labels[0:50]
+    validate_img_array=img_array[50:100]
+    validate_labels=labels[50:100]
     test_img_array=img_array[100:200]
     test_labels=labels[100:200]
     for i in range(200,2000,200):
-        #print(i)
-        train_img_array=np.concatenate((train_img_array,img_array[i:i+100]),axis=0)
-        train_labels=np.concatenate((train_labels,labels[i:i+100]),axis=0)
+        train_img_array=np.concatenate((train_img_array,img_array[i:i+50]),axis=0)
+        train_labels=np.concatenate((train_labels,labels[i:i+50]),axis=0)
+        validate_img_array=np.concatenate((validate_img_array,validate_img_array[i+50:i+100]),axis=0)
+        validate_labels=np.concatenate((validate_labels,validate_labels[i+50:i+100]),axis=0)
         test_img_array=np.concatenate((test_img_array,img_array[i+100:i+200]),axis=0)
         test_labels=np.concatenate((test_labels,labels[i+100:i+200]),axis=0)
-    return train_img_array,train_labels,test_img_array,test_labels
+    return train_img_array,train_labels,validate_img_array, validate_labels, test_img_array,test_labels
