@@ -1,5 +1,5 @@
 # Translated version of Matlab code basicDemo.m by Naomï Broersma.
-#
+# Still working on it
 import re
 import numpy as np
 from matplotlib import pyplot as plt
