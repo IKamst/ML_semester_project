@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from tensorflow import config
 from tensorflow.keras import models, layers
 from tensorflow.keras.applications import MobileNetV2
@@ -12,10 +13,10 @@ from load_data import *
 import numpy as np
 
 AUG_ROTATION_RANGE = 60
-AUG_ZOOM_RANGE = 0.8
-AUG_SHEAR_RANGE = 20
+AUG_ZOOM_RANGE = 0
+AUG_SHEAR_RANGE = 0
 
-AUG_CHANCE = 1
+AUG_CHANCE = 0.5
 
 
 def solve_cudnn_error():
@@ -52,7 +53,6 @@ def data_generator(dataset, st, ed, batch_size, aug):
         im_array = []
         lb_array = []
         for i in range(batch_size):
-            im = []
             im_gray = np.array(dataset[nowinx][0], dtype=np.uint8)
             im_bgr = cv2.cvtColor(im_gray, cv2.COLOR_GRAY2BGR)
 
@@ -93,7 +93,49 @@ def data_generator(dataset, st, ed, batch_size, aug):
                     if cv2.waitKey(1) == ord('0'):
                         break
                 cv2.destroyAllWindows() '''
-        yield (im_array, lb_array)
+        yield im_array, lb_array
+
+
+def plot_accuracy_train_validate(result):
+    plt.figure(1)
+    plt.plot(result.history['accuracy'])
+    plt.plot(result.history['val_accuracy'])
+    plt.title('Model accuracy for training set and validation set')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train set', 'Validation set'], loc='upper left')
+    plt.show()
+    return
+
+
+# Loop over the test set and for each image use model.predict(image).
+# Then check if this prediction is correct and calculate the accuracy over the entire test set.
+def determine_accuracy_test_set(test_data):
+    # TODO Only run after the model has been trained and different hyperparameters have been used to check
+    #  performance on the validation set.
+    print(len(test_data))
+    correct = 0
+    for i in range(len(test_labels)):
+        im_gray = np.array(test_data[i][0], dtype=np.uint8)
+        im_bgr = cv2.cvtColor(im_gray, cv2.COLOR_GRAY2BGR) / 255
+        yy = list(model.predict(im_bgr.reshape(1, 32, 32, 3))[0])
+        num_pre = yy.index(max(yy))
+        num_label = test_data[i][1]
+        if num_pre == num_label:
+            correct += 1
+        else:
+            print("error_index:", i, "num_pre:", num_pre, "num_label:", num_label)
+            '''
+            while(1):
+                cv2.imshow('im_bgr',im_bgr)
+                if cv2.waitKey(1) == ord('0'): # press 0 to close the pic window
+                    break
+            cv2.destroyAllWindows()
+            '''
+
+    accuracy = correct / len(test_data)
+    print("Accuracy", accuracy)
+    return
 
 
 if __name__ == "__main__":
@@ -115,7 +157,7 @@ if __name__ == "__main__":
 
     model = model_build()
     model.summary()
-    model.compile(optimizer=SGD(lr=0.01),
+    model.compile(optimizer=SGD(learning_rate=0.01),
                   loss='categorical_crossentropy', metrics=['accuracy'])
 
     reducelrOnplateau = ReduceLROnPlateau(monitor='loss', factor=0.33, patience=7, verbose=1)
@@ -142,10 +184,6 @@ if __name__ == "__main__":
         epochs=100
     )
 
-    # TODO Only run after the model has been trained and different hyperparameters have been used to check
-    #  performance on the validation set.
-    # Loop over the test set and for each image use model.predict(image). Need to change format of image...
-    # Then check if this prediction is correct and calculate the accuracy over the entire test set.
-    print(len(test_set))
-    for i in range(len(test_labels)):
-        print(i)
+    determine_accuracy_test_set(test_set)
+    plot_accuracy_train_validate(his)
+

@@ -1,5 +1,4 @@
 from tensorflow.keras.models import load_model
-from tensorflow import config
 from load_data import *
 from train import solve_cudnn_error
 import numpy as np
