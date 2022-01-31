@@ -115,7 +115,7 @@ def determine_accuracy_test_set(test_data):
     #  performance on the validation set.
     print(len(test_data))
     correct = 0
-    for i in range(len(test_labels)):
+    for i in range(len(test_data)):
         im_gray = np.array(test_data[i][0], dtype=np.uint8)
         im_bgr = cv2.cvtColor(im_gray, cv2.COLOR_GRAY2BGR) / 255
         yy = list(model.predict(im_bgr.reshape(1, 32, 32, 3))[0])
@@ -142,9 +142,16 @@ if __name__ == "__main__":
     img_array, labels = load_data(expand=True, plot=0)
     train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
         split_train_validate_test(img_array, labels)
-    train_set = list(zip(train_img_array, train_labels))
-    validate_set = list(zip(validate_img_array, validate_labels))
-    test_set = list(zip(test_img_array, test_labels))
+    for i in range(len(train_img_array)):
+        print(len(train_img_array[i]))
+        print(len(train_labels[i]))
+        print(len(validate_img_array[i]))
+        print(len(validate_labels[i]))
+        print(len(test_img_array[i]))
+        print(len(test_labels[i]))
+    train_set = list(zip(train_img_array[0], train_labels[0]))
+    validate_set = list(zip(validate_img_array[0], validate_labels[0]))
+    test_set = list(zip(test_img_array[0], test_labels[0]))
 
     solve_cudnn_error()
     aug = ImageDataGenerator(rotation_range=AUG_ROTATION_RANGE, zoom_range=AUG_ZOOM_RANGE, width_shift_range=0,

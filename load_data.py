@@ -42,47 +42,50 @@ def load_data(expand=False,plot=False):  # load mfeat-pix.txt as opencv' format
 # and then 100 for testing.
 # TODO randomise this? and how many for each set?
 # 80 train, 20 validation -> 5 fold cross validation
-def split_train_validate_test(img_array, labels):
-    train_img_array=img_array[0:50]
-    train_labels=labels[0:50]
-    validate_img_array=img_array[50:100]
-    validate_labels=labels[50:100]
-    test_img_array=img_array[100:200]
-    test_labels=labels[100:200]
-    for i in range(200,2000,200):
-        train_img_array=np.concatenate((train_img_array,img_array[i:i+50]),axis=0)
-        train_labels=np.concatenate((train_labels,labels[i:i+50]),axis=0)
-        validate_img_array=np.concatenate((validate_img_array,validate_img_array[i+50:i+100]),axis=0)
-        validate_labels=np.concatenate((validate_labels,validate_labels[i+50:i+100]),axis=0)
-        test_img_array=np.concatenate((test_img_array,img_array[i+100:i+200]),axis=0)
-        test_labels=np.concatenate((test_labels,labels[i+100:i+200]),axis=0)
-    return train_img_array,train_labels,validate_img_array, validate_labels, test_img_array,test_labels
-
 # def split_train_validate_test(img_array, labels):
-#     training_images = []
-#     training_labels = []
-#     validation_images = []
-#     validation_labels = []
-#     testing_images = []
-#     testing_labels = []
-#     for fold in range(5):
-#         train_img_array = img_array[0:50]
-#         train_labels = labels[0:50]
-#         validate_img_array = img_array[50:100]
-#         validate_labels = labels[50:100]
-#         test_img_array = img_array[100:200]
-#         test_labels = labels[100:200]
-#         for i in range(200, 2000, 200):
-#             train_img_array = np.concatenate((train_img_array, img_array[i:i+50]), axis=0)
-#             train_labels = np.concatenate((train_labels, labels[i:i+50]), axis=0)
-#             validate_img_array = np.concatenate((validate_img_array, validate_img_array[i+50:i+100]), axis=0)
-#             validate_labels = np.concatenate((validate_labels, validate_labels[i+50:i+100]), axis=0)
-#             test_img_array = np.concatenate((test_img_array, img_array[i+100:i+200]), axis=0)
-#             test_labels = np.concatenate((test_labels, labels[i+100:i+200]), axis=0)
-#         training_images.append(train_img_array)
-#         training_labels.append(train_labels)
-#         validation_images.append(validate_img_array)
-#         validation_labels.append(validate_labels)
-#         testing_images.append(test_img_array)
-#         testing_labels.append(test_labels)
-#     return training_images, training_labels, validation_images, validation_labels, testing_images, testing_labels
+#     train_img_array=img_array[0:50]
+#     train_labels=labels[0:50]
+#     validate_img_array=img_array[50:100]
+#     validate_labels=labels[50:100]
+#     test_img_array=img_array[100:200]
+#     test_labels=labels[100:200]
+#     for i in range(200,2000,200):
+#         train_img_array=np.concatenate((train_img_array,img_array[i:i+50]),axis=0)
+#         train_labels=np.concatenate((train_labels,labels[i:i+50]),axis=0)
+#         validate_img_array=np.concatenate((validate_img_array,img_array[i+50:i+100]),axis=0)
+#         validate_labels=np.concatenate((validate_labels,labels[i+50:i+100]),axis=0)
+#         test_img_array=np.concatenate((test_img_array,img_array[i+100:i+200]),axis=0)
+#         test_labels=np.concatenate((test_labels,labels[i+100:i+200]),axis=0)
+#     return train_img_array,train_labels,validate_img_array, validate_labels, test_img_array,test_labels
+
+def split_train_validate_test(img_array, labels):
+    training_images = []
+    training_labels = []
+    validation_images = []
+    validation_labels = []
+    testing_images = []
+    testing_labels = []
+    for fold in range(1, 5):
+        train_img_array = img_array[0:80]
+        train_labels = labels[0:80]
+        validate_img_array = img_array[80:100]
+        validate_labels = labels[80:100]
+        test_img_array = img_array[100:200]
+        test_labels = labels[100:200]
+        for i in range(200, 2000, 200):
+            train_img_array = np.concatenate((train_img_array, img_array[i:i+fold*20]), axis=0)
+            train_labels = np.concatenate((train_labels, labels[i:i+fold*20]), axis=0)
+            validate_img_array = np.concatenate((validate_img_array, img_array[i+fold*20:i+(fold+1)*20]), axis=0)
+            validate_labels = np.concatenate((validate_labels, labels[i+fold*20:i+(fold+1)*20]), axis=0)
+            if not fold == 4:
+                train_img_array = np.concatenate((train_img_array, img_array[i+(fold+1)*20:i+100]), axis=0)
+                train_labels = np.concatenate((train_labels, labels[i+(fold+1)*20:i+100]), axis=0)
+            test_img_array = np.concatenate((test_img_array, img_array[i+100:i+200]), axis=0)
+            test_labels = np.concatenate((test_labels, labels[i+100:i+200]), axis=0)
+        training_images.append(train_img_array)
+        training_labels.append(train_labels)
+        validation_images.append(validate_img_array)
+        validation_labels.append(validate_labels)
+        testing_images.append(test_img_array)
+        testing_labels.append(test_labels)
+    return training_images, training_labels, validation_images, validation_labels, testing_images, testing_labels
