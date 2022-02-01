@@ -34,7 +34,7 @@ def solve_cudnn_error():
 
 
 def model_build():
-    BaseCnn = MobileNetV2(input_shape=(32, 32, 3), alpha=1,  # minimalistic=True,
+    BaseCnn = MobileNetV2(input_shape=(32, 32, 3), alpha=1.0,  # minimalistic=True,
                           include_top=False, weights='imagenet',  # classes=1,dropout_rate=0.7,
                           )  # 'imagenet' None
 
