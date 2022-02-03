@@ -110,7 +110,7 @@ def plot_accuracy_train_validate(result):
 
 # Loop over the test set and for each image use model.predict(image).
 # Then check if this prediction is correct and calculate the accuracy over the entire test set.
-def determine_accuracy_test_set(test_data):
+def determine_accuracy_test_set(test_data, model):
     # TODO Only run after the model has been trained and different hyperparameters have been used to check
     #  performance on the validation set.
     print(len(test_data))
@@ -138,21 +138,7 @@ def determine_accuracy_test_set(test_data):
     return
 
 
-if __name__ == "__main__":
-    img_array, labels = load_data(expand=True, plot=0)
-    train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
-        split_train_validate_test(img_array, labels)
-    for i in range(len(train_img_array)):
-        print(len(train_img_array[i]))
-        print(len(train_labels[i]))
-        print(len(validate_img_array[i]))
-        print(len(validate_labels[i]))
-        print(len(test_img_array[i]))
-        print(len(test_labels[i]))
-    train_set = list(zip(train_img_array[0], train_labels[0]))
-    validate_set = list(zip(validate_img_array[0], validate_labels[0]))
-    test_set = list(zip(test_img_array[0], test_labels[0]))
-
+def run_CNN():
     solve_cudnn_error()
     aug = ImageDataGenerator(rotation_range=AUG_ROTATION_RANGE, zoom_range=AUG_ZOOM_RANGE, width_shift_range=0,
                              height_shift_range=0, shear_range=AUG_SHEAR_RANGE, horizontal_flip=False,
@@ -190,7 +176,22 @@ if __name__ == "__main__":
         validation_steps=20,
         epochs=100
     )
+    return his, model
 
-    determine_accuracy_test_set(test_set)
-    plot_accuracy_train_validate(his)
+
+if __name__ == "__main__":
+    img_array, labels = load_data(expand=True, plot=0)
+    train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
+        split_train_validate_test(img_array, labels)
+
+    for i in range(len(train_img_array)):
+        train_set = list(zip(train_img_array[0], train_labels[0]))
+        validate_set = list(zip(validate_img_array[0], validate_labels[0]))
+        test_set = list(zip(test_img_array[0], test_labels[0]))
+        results, model = run_CNN()
+        validation_accuracy = results.history['val_accuracy'][-1]
+        print('Validation accuracy:')
+        print(validation_accuracy)
+        determine_accuracy_test_set(test_set, model)
+    plot_accuracy_train_validate(results)
 
