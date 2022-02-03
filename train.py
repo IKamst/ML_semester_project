@@ -183,7 +183,6 @@ if __name__ == "__main__":
     img_array, labels = load_data(expand=True, plot=0)
     train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
         split_train_validate_test(img_array, labels)
-    print(train_labels)
     for i in range(len(train_img_array)):
         train_set = list(zip(train_img_array[i], train_labels[i]))
         validate_set = list(zip(validate_img_array[i], validate_labels[i]))

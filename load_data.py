@@ -65,13 +65,36 @@ def split_train_validate_test(img_array, labels):
     validation_labels = []
     testing_images = []
     testing_labels = []
-    train_img_array = img_array[0:80]
-    train_labels = labels[0:80]
-    validate_img_array = img_array[80:100]
-    validate_labels = labels[80:100]
+
+    train_img_array = img_array[20:100]
+    train_labels = labels[20:100]
+    validate_img_array = img_array[0:20]
+    validate_labels = labels[0:20]
     test_img_array = img_array[100:200]
     test_labels = labels[100:200]
+    for i in range(200, 2000, 200):
+        train_img_array = np.concatenate((train_img_array,img_array[i+20:i+100]),axis=0)
+        train_labels = np.concatenate((train_labels,labels[i+20:i+100]),axis=0)
+        validate_img_array = np.concatenate((validate_img_array,img_array[i:i+20]),axis=0)
+        validate_labels = np.concatenate((validate_labels,labels[i:i+20]),axis=0)
+        test_img_array = np.concatenate((test_img_array,img_array[i+100:i+200]),axis=0)
+        test_labels = np.concatenate((test_labels,labels[i+100:i+200]),axis=0)
+    training_images.append(train_img_array)
+    training_labels.append(train_labels)
+    validation_images.append(validate_img_array)
+    validation_labels.append(validate_labels)
+    testing_images.append(test_img_array)
+    testing_labels.append(test_labels)
     for fold in range(1, 5):
+        train_img_array = img_array[0:fold*20]
+        train_labels = labels[0:fold*20]
+        validate_img_array = img_array[fold*20:(fold+1)*20]
+        validate_labels = labels[fold*20:(fold+1)*20]
+        test_img_array = img_array[100:200]
+        test_labels = labels[100:200]
+        if not fold == 4:
+            train_img_array = np.concatenate((train_img_array, img_array[(fold+1)*20:100]), axis=0)
+            train_labels = np.concatenate((train_labels, labels[(fold+1)*20:100]), axis=0)
         for i in range(200, 2000, 200):
             train_img_array = np.concatenate((train_img_array, img_array[i:i+fold*20]), axis=0)
             train_labels = np.concatenate((train_labels, labels[i:i+fold*20]), axis=0)
