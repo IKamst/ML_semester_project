@@ -183,11 +183,11 @@ if __name__ == "__main__":
     img_array, labels = load_data(expand=True, plot=0)
     train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
         split_train_validate_test(img_array, labels)
-
+    print(train_labels)
     for i in range(len(train_img_array)):
-        train_set = list(zip(train_img_array[0], train_labels[0]))
-        validate_set = list(zip(validate_img_array[0], validate_labels[0]))
-        test_set = list(zip(test_img_array[0], test_labels[0]))
+        train_set = list(zip(train_img_array[i], train_labels[i]))
+        validate_set = list(zip(validate_img_array[i], validate_labels[i]))
+        test_set = list(zip(test_img_array[i], test_labels[i]))
         results, model = run_CNN()
         validation_accuracy = results.history['val_accuracy'][-1]
         print('Validation accuracy:')

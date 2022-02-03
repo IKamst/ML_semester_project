@@ -65,13 +65,13 @@ def split_train_validate_test(img_array, labels):
     validation_labels = []
     testing_images = []
     testing_labels = []
+    train_img_array = img_array[0:80]
+    train_labels = labels[0:80]
+    validate_img_array = img_array[80:100]
+    validate_labels = labels[80:100]
+    test_img_array = img_array[100:200]
+    test_labels = labels[100:200]
     for fold in range(1, 5):
-        train_img_array = img_array[0:80]
-        train_labels = labels[0:80]
-        validate_img_array = img_array[80:100]
-        validate_labels = labels[80:100]
-        test_img_array = img_array[100:200]
-        test_labels = labels[100:200]
         for i in range(200, 2000, 200):
             train_img_array = np.concatenate((train_img_array, img_array[i:i+fold*20]), axis=0)
             train_labels = np.concatenate((train_labels, labels[i:i+fold*20]), axis=0)
