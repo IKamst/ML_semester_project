@@ -1,3 +1,4 @@
+import tensorflow
 from matplotlib import pyplot as plt
 from tensorflow import config
 from tensorflow.keras import models, layers
@@ -12,9 +13,9 @@ from tensorflow.keras.utils import to_categorical
 from load_data import *
 import numpy as np
 
-AUG_ROTATION_RANGE = 60
-AUG_ZOOM_RANGE = 0
-AUG_SHEAR_RANGE = 0
+AUG_ROTATION_RANGE = 45
+AUG_ZOOM_RANGE = 0.4
+AUG_SHEAR_RANGE = 30
 
 AUG_CHANCE = 0.5
 
@@ -100,10 +101,22 @@ def plot_accuracy_train_validate(result):
     plt.figure(1)
     plt.plot(result.history['accuracy'])
     plt.plot(result.history['val_accuracy'])
-    plt.title('Model accuracy for training set and validation set')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(['Train set', 'Validation set'], loc='upper left')
+    plt.title('Model accuracy for training set \n and validation set', fontsize=20)
+    plt.ylabel('Accuracy', fontsize=18)
+    plt.xlabel('Epoch', fontsize=18)
+    plt.legend(['Train set', 'Validation set'], loc='upper left', fontsize=16)
+    plt.show()
+    return
+
+
+def plot_loss(result):
+    plt.figure(2)
+    plt.plot(result.history['loss'])
+    plt.plot(result.history['val_loss'])
+    plt.title('Model loss for training set \n and validation set', fontsize=20)
+    plt.ylabel('Loss', fontsize=18)
+    plt.xlabel('Epoch', fontsize=18)
+    plt.legend(['Train set', 'Validation set'], loc='upper left', fontsize=16)
     plt.show()
     return
 
@@ -113,18 +126,21 @@ def plot_accuracy_train_validate(result):
 def determine_accuracy_test_set(test_data, model):
     # TODO Only run after the model has been trained and different hyperparameters have been used to check
     #  performance on the validation set.
-    print(len(test_data))
     correct = 0
+    labels = []
+    predictions = []
     for i in range(len(test_data)):
         im_gray = np.array(test_data[i][0], dtype=np.uint8)
         im_bgr = cv2.cvtColor(im_gray, cv2.COLOR_GRAY2BGR) / 255
         yy = list(model.predict(im_bgr.reshape(1, 32, 32, 3))[0])
         num_pre = yy.index(max(yy))
         num_label = test_data[i][1]
+        labels.append(num_label)
+        predictions.append(num_pre)
         if num_pre == num_label:
             correct += 1
         else:
-            print("error_index:", i, "num_pre:", num_pre, "num_label:", num_label)
+            # print("error_index:", i, "num_pre:", num_pre, "num_label:", num_label)
             '''
             while(1):
                 cv2.imshow('im_bgr',im_bgr)
@@ -135,7 +151,9 @@ def determine_accuracy_test_set(test_data, model):
 
     accuracy = correct / len(test_data)
     print("Accuracy", accuracy)
-    return
+    confusion_matrix = tensorflow.math.confusion_matrix(labels, predictions)
+    print("Confusion matrix:", confusion_matrix)
+    return accuracy
 
 
 def run_CNN():
@@ -153,7 +171,7 @@ def run_CNN():
     model.compile(optimizer=SGD(learning_rate=0.01),
                   loss='categorical_crossentropy', metrics=['accuracy'])
 
-    reducelrOnplateau = ReduceLROnPlateau(monitor='loss', factor=0.33, patience=7, verbose=1)
+    reducelrOnplateau = ReduceLROnPlateau(monitor='loss', factor=0.3, patience=7, verbose=1)
 
     model_file_path = "./model/digit_recognition.hdf5"
     model_checkpointer = ModelCheckpoint(
@@ -183,14 +201,23 @@ if __name__ == "__main__":
     img_array, labels = load_data(expand=True, plot=0)
     train_img_array, train_labels, validate_img_array, validate_labels, test_img_array, test_labels = \
         split_train_validate_test(img_array, labels)
+    val_accuracy_array = []
+    test_accuracy_array = []
     for i in range(len(train_img_array)):
         train_set = list(zip(train_img_array[i], train_labels[i]))
         validate_set = list(zip(validate_img_array[i], validate_labels[i]))
         test_set = list(zip(test_img_array[i], test_labels[i]))
         results, model = run_CNN()
         validation_accuracy = results.history['val_accuracy'][-1]
-        print('Validation accuracy:')
-        print(validation_accuracy)
-        determine_accuracy_test_set(test_set, model)
+        val_accuracy_array.append(validation_accuracy)
+        test_accuracy = determine_accuracy_test_set(test_set, model)
+        test_accuracy_array.append(test_accuracy)
+    print("Validation accuracy:")
+    print(val_accuracy_array)
+    print(np.mean(val_accuracy_array))
+    print("Test accuracy:")
+    print(test_accuracy_array)
+    print(np.mean(test_accuracy_array))
     plot_accuracy_train_validate(results)
+    plot_loss(results)
 
